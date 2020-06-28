@@ -36,6 +36,7 @@ struct trainif *TicketInit()
 		perror("malloc");
 		return NULL;
 	}
+	memset(p, 0, sizeof(struct trainif));
 	p->next = NULL;
 
 	return p;
