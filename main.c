@@ -15,10 +15,10 @@ struct trainif
 };
 
 struct trainif *TicketInit();
-int TicketInsert(struct trainif *p);
+void destory(struct trainif *p);
 void MainMenu();
 void MenuChoose(int mychoose, struct trainif *p);
-int QuitSystem();
+int QuitSystem(struct trainif *p);
 int InsertInformation(struct trainif *p);
 int SerachInformation();
 int BookTicket();
@@ -42,8 +42,18 @@ struct trainif *TicketInit()
 	return p;
 }
 
-int TicketInsert(struct trainif *p)
+void destory(struct trainif *p)
 {
+	struct trainif *q = p;
+	while (p->next != NULL)
+	{
+		p = p->next;
+		free(q);
+		q = p;
+	}
+	free(p);
+	p = NULL;
+	q = NULL;
 }
 
 void MainMenu()
@@ -67,7 +77,7 @@ void MenuChoose(int mychoose, struct trainif *p)
 	switch (mychoose)
 	{
 	case 0:
-		QuitSystem();
+		QuitSystem(p);
 		break;
 	case 1:
 		InsertInformation(p);
@@ -92,16 +102,16 @@ void MenuChoose(int mychoose, struct trainif *p)
 	}
 }
 
-int QuitSystem()
+int QuitSystem(struct trainif *p)
 {
 	printf("system quit normally\n");
+	destory(p);
 	exit(1); //正常退出
 	return 0;
 }
 
 int InsertInformation(struct trainif *p)
 {
-	char buf[32];
 	struct trainif *q = NULL;
 	struct trainif *f = NULL;
 	q = p;
@@ -118,7 +128,7 @@ int InsertInformation(struct trainif *p)
 	}
 
 	printf("please input the number of train<0-return>");
-	scanf("%d", f->trainnum);
+	scanf("%d", &f->trainnum);
 	while (getchar() != '\n')
 		;
 
@@ -143,10 +153,17 @@ int InsertInformation(struct trainif *p)
 		;
 
 	printf("Input the price of the train:");
-	scanf("%d", f->price);
+	scanf("%d", &f->price);
 	while (getchar() != '\n')
 		;
-	
+
+	printf("Input the number of book tickets:");
+	scanf("%d", &f->booknumber);
+	while (getchar() != '\n')
+		;
+
+	f->next = q->next;
+	q->next = f;
 
 	return 0;
 }
