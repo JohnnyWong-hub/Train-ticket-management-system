@@ -9,6 +9,7 @@ struct trainif
 	char end[32];
 	char starttime[10];
 	char receivetime[10];
+	int price;
 	int booknumber;
 	struct trainif *next;
 };
@@ -99,6 +100,7 @@ int QuitSystem()
 
 int InsertInformation(struct trainif *p)
 {
+	char buf[32];
 	struct trainif *q = NULL;
 	struct trainif *f = NULL;
 	q = p;
@@ -113,6 +115,38 @@ int InsertInformation(struct trainif *p)
 		perror("malloc");
 		return -1;
 	}
+
+	printf("please input the number of train<0-return>");
+	scanf("%d", f->trainnum);
+	while (getchar() != '\n')
+		;
+
+	printf("Input the city where the trai will start:");
+	scanf("%s", f->start);
+	while (getchar() != '\n')
+		;
+
+	printf("Input the city where the train reach:");
+	scanf("%s", f->end);
+	while (getchar() != '\n')
+		;
+
+	printf("Input the time which the train take off:");
+	scanf("%s", f->starttime);
+	while (getchar() != '\n')
+		;
+
+	printf("Input the time which the train receive:");
+	scanf("%s", f->receivetime);
+	while (getchar() != '\n')
+		;
+
+	printf("Input the price of the train:");
+	scanf("%d", f->price);
+	while (getchar() != '\n')
+		;
+	
+
 	return 0;
 }
 
