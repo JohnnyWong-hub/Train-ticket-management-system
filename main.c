@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
+#include <fcntl.h>
+#include <sys/stat.h>
 
 struct trainif
 {
@@ -33,9 +36,9 @@ int QuitSystem(struct trainif *p, struct passger *q);
 int InsertInformation(struct trainif *p);
 int SerachInformation(struct trainif *p);
 int BookTicket(struct trainif *p, struct passger *q);
-int ModifyInformation();
-int ShowInformation();
-int SaveInformation();
+int ModifyInformation(struct trainif *p);
+int ShowInformation(struct trainif *p);
+int SaveInformation(struct trainif *p, struct passger *q);
 
 void passgerdestory(struct passger *p)
 {
@@ -130,13 +133,13 @@ void MenuChoose(int mychoose, struct trainif *p, struct passger *q)
 		BookTicket(p, q);
 		break;
 	case 4:
-		ModifyInformation();
+		ModifyInformation(p);
 		break;
 	case 5:
-		ShowInformation();
+		ShowInformation(p);
 		break;
 	case 6:
-		SaveInformation();
+		SaveInformation(p, q);
 		break;
 	default:
 		break;
@@ -347,18 +350,126 @@ int BookTicket(struct trainif *p, struct passger *f)
 	return 0;
 }
 
-int ModifyInformation()
+int ModifyInformation(struct trainif *p)
 {
+	char choose = '\0';
+	int trainnum = 0;
+	struct trainif *f = p;
+	printf("Do you want to modify information:y/n");
+	scanf("%c", &choose);
+	while (getchar() != '\n')
+		;
+
+	if ('y' == choose)
+	{
+		printf("Please input train num you want to modif:");
+		scanf("%d", &trainnum);
+		while (getchar() != '\n')
+			;
+		while (NULL != f && f->trainnum != trainnum)
+		{
+			f = f->next;
+		}
+
+		if (NULL == f)
+		{
+			printf("please input true train number\n");
+			return -1;
+		}
+
+		printf("please input new number:");
+		scanf("%d", &f->trainnum);
+		while (getchar() != '\n')
+			;
+
+		printf("Input city you start:");
+		scanf("%s", f->start);
+		while (getchar() != '\n')
+			;
+
+		printf("Input the city you arrive:");
+		scanf("%s", f->end);
+		while (getchar() != '\n')
+			;
+
+		printf("time to take off:");
+		scanf("%s", f->starttime);
+		while (getchar() != '\n')
+			;
+
+		printf("time to arrive:");
+		scanf("%s", f->receivetime);
+		while (getchar() != '\n')
+			;
+
+		printf("input price of new train:");
+		scanf("%d", &f->price);
+		while (getchar() != '\n')
+			;
+
+		printf("input the remian ticket of new train:");
+		scanf("%d", &f->booknumber);
+		while (getchar() != '\n')
+			;
+
+		printf("modifily information successful\n");
+	}
+
 	return 0;
 }
 
-int ShowInformation()
+int ShowInformation(struct trainif *p)
 {
+	p = p->next;
+	if (NULL == p)
+	{
+		printf("There is no information\n");
+	}
+	else
+	{
+		printf("-------------------------------------------------------------------------------------------------------------------:\n");
+		printf(":--------------------------------------------BOOK----TICKET--------------------------------------------------------:\n");
+		printf(":    number    :  strat city  :  reach city   :   tackofftime    :   receivetime    :  price  :   ticketnumber     :\n");
+		printf(":--------------:--------------:---------------:------------------:------------------:---------:--------------------:\n");
+		while (p != NULL)
+		{
+			printf(":%-14d:%-14s:%-15s:%-18s:%-20s:%-9d:%-22d\n", p->trainnum, p->start, p->end, p->starttime, p->receivetime, p->price, p->booknumber);
+			p = p->next;
+		}
+		printf("-------------------------------------------------------------------------------------------------------------------:\n");
+	}
 	return 0;
 }
 
-int SaveInformation()
+int SaveInformation(struct trainif *p, struct passger *q)
 {
+	FILE * fp1;
+	FILE * fp2;
+	int k = 0;
+	fp1 = fopen("traininformation.txt", "w+a");
+	fp2 = fopen("passgerformation.txt", "w+a");
+	p = p->next;
+	q = q->next;
+	while( p != NULL)
+	{
+		fwrite(p, sizeof(struct trainif),1,fp1);
+		fprintf(fp1,"\n");
+		p = p->next;
+		k++;
+	}
+	printf("Save train informatin:%d\n", k);
+	k = 0;
+	while(q != NULL)
+	{
+		fwrite(q, sizeof(struct passger),1,fp2);
+		fprintf(fp2, "\n");
+		q = q->next;
+		k++;
+	}
+	printf("Save passger informatin:%d\n", k);
+
+	fclose(fp1);
+	fclose(fp2);
 	return 0;
 }
 
