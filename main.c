@@ -14,18 +14,58 @@ struct trainif
 	struct trainif *next;
 };
 
+struct passger
+{
+	char name[32];
+	long int id;
+	int booknum;
+	struct passger *next;
+};
+
+struct passger *passger();
+void passgerdestory(struct passger *p);
 void ShowSingleIf(struct trainif *p);
 struct trainif *TicketInit();
 void destory(struct trainif *p);
 void MainMenu();
-void MenuChoose(int mychoose, struct trainif *p);
-int QuitSystem(struct trainif *p);
+void MenuChoose(int mychoose, struct trainif *p, struct passger *q);
+int QuitSystem(struct trainif *p, struct passger *q);
 int InsertInformation(struct trainif *p);
 int SerachInformation(struct trainif *p);
-int BookTicket();
+int BookTicket(struct trainif *p, struct passger *q);
 int ModifyInformation();
 int ShowInformation();
 int SaveInformation();
+
+void passgerdestory(struct passger *p)
+{
+	struct passger *q = p;
+	while (p->next != NULL)
+	{
+		p = p->next;
+		free(q);
+		q = p;
+	}
+	free(p);
+	p = NULL;
+	q = NULL;
+}
+
+struct passger *passger()
+{
+	struct passger *p = NULL;
+	p = (struct passger *)malloc(sizeof(struct passger));
+	if (NULL == p)
+	{
+		printf("malloc failed");
+		return NULL;
+	}
+
+	memset(p, 0, sizeof(struct passger));
+	p->next = NULL;
+
+	return p;
+}
 
 struct trainif *TicketInit()
 {
@@ -73,12 +113,12 @@ void MainMenu()
 	printf("      please choose <0~6>:                            ");
 }
 
-void MenuChoose(int mychoose, struct trainif *p)
+void MenuChoose(int mychoose, struct trainif *p, struct passger *q)
 {
 	switch (mychoose)
 	{
 	case 0:
-		QuitSystem(p);
+		QuitSystem(p, q);
 		break;
 	case 1:
 		InsertInformation(p);
@@ -87,7 +127,7 @@ void MenuChoose(int mychoose, struct trainif *p)
 		SerachInformation(p);
 		break;
 	case 3:
-		BookTicket();
+		BookTicket(p, q);
 		break;
 	case 4:
 		ModifyInformation();
@@ -103,9 +143,10 @@ void MenuChoose(int mychoose, struct trainif *p)
 	}
 }
 
-int QuitSystem(struct trainif *p)
+int QuitSystem(struct trainif *p, struct passger *q)
 {
 	printf("system quit normally\n");
+	passgerdestory(q);
 	destory(p);
 	exit(1); //正常退出
 	return 0;
@@ -171,8 +212,8 @@ int InsertInformation(struct trainif *p)
 
 int SerachInformation(struct trainif *p)
 {
-	int x=0;
-	int number=0;
+	int x = 0;
+	int number = 0;
 	char buf[32];
 	struct trainif *q = NULL;
 	q = p;
@@ -191,9 +232,10 @@ int SerachInformation(struct trainif *p)
 	{
 		printf("Input number of the train:\n");
 		scanf("%d", &number);
-		while(getchar() != '\n');
+		while (getchar() != '\n')
+			;
 
-		while (q != NULL && number != q->trainnum )
+		while (q != NULL && number != q->trainnum)
 		{
 			q = q->next;
 		}
@@ -215,8 +257,93 @@ int SerachInformation(struct trainif *p)
 	return 0;
 }
 
-int BookTicket()
+int BookTicket(struct trainif *p, struct passger *f)
 {
+	struct trainif *q = NULL;
+	q = p;
+	int k = 0;
+	int t = 0;
+	char c = '\0';
+	char buf[32] = {'\0'};
+	printf("Please input the city you want togo:");
+	scanf("%s", buf);
+	while (getchar() != '\n')
+		;
+
+	q = q->next;
+	if (q == NULL)
+	{
+		printf("there is no train information\n");
+	}
+
+	while (q != NULL)
+	{
+		if (strcasecmp(buf, q->end) == 0)
+		{
+			ShowSingleIf(q);
+			k++;
+		}
+		q = q->next;
+	}
+	printf("your recoder is %d\n", k);
+	;
+
+	if (0 != k)
+	{
+		printf("Do you want to book it y/n:");
+		scanf("%c", &c);
+		while (getchar() != '\n')
+			;
+		if ('y' == c)
+		{
+			struct passger *k = NULL;
+			k = (struct passger *)malloc(sizeof(struct passger));
+			if (NULL == k)
+			{
+				printf("malloc failed\n");
+				return -1;
+			}
+			memset(k, 0, sizeof(struct passger));
+
+			printf("please intput your name:");
+			scanf("%s", k->name);
+			while (getchar() != '\n')
+				;
+
+			printf("please input your id:");
+			scanf("%ld", &k->id);
+			while (getchar() != '\n')
+				;
+
+			printf("please input the number of the train:");
+			scanf("%d", &t);
+			while (getchar() != '\n')
+				;
+
+			q = p;
+			while (q != NULL && q->trainnum != t)
+			{
+				q = q->next;
+			}
+
+			printf("remain %d tickets\n", q->booknumber);
+			printf("Input your book number:");
+			scanf("%d", &k->booknum);
+			if (q->booknumber > 0)
+			{
+				printf("lucky you book it success\n");
+				q->booknumber--;
+				k->next = f->next;
+				f->next = k;
+			}
+			else
+			{
+				printf("book failed\n");
+				free(k);
+			}
+		}
+	}
+
 	return 0;
 }
 
@@ -255,8 +382,14 @@ int main(int argc, const char *argv[])
 {
 	int choose = -1;
 	struct trainif *p = NULL;
+	struct passger *q = NULL;
 	p = TicketInit();
+	q = passger();
 	if (NULL == p)
+	{
+		exit(-1);
+	}
+	if (NULL == q)
 	{
 		exit(-1);
 	}
@@ -267,7 +400,7 @@ int main(int argc, const char *argv[])
 		while (getchar() != '\n')
 		{
 		}
-		MenuChoose(choose, p);
+		MenuChoose(choose, p, q);
 	}
 	return 0;
 }
