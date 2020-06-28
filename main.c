@@ -14,13 +14,14 @@ struct trainif
 	struct trainif *next;
 };
 
+void ShowSingleIf(struct trainif *p);
 struct trainif *TicketInit();
 void destory(struct trainif *p);
 void MainMenu();
 void MenuChoose(int mychoose, struct trainif *p);
 int QuitSystem(struct trainif *p);
 int InsertInformation(struct trainif *p);
-int SerachInformation();
+int SerachInformation(struct trainif *p);
 int BookTicket();
 int ModifyInformation();
 int ShowInformation();
@@ -83,7 +84,7 @@ void MenuChoose(int mychoose, struct trainif *p)
 		InsertInformation(p);
 		break;
 	case 2:
-		SerachInformation();
+		SerachInformation(p);
 		break;
 	case 3:
 		BookTicket();
@@ -168,8 +169,49 @@ int InsertInformation(struct trainif *p)
 	return 0;
 }
 
-int SerachInformation()
+int SerachInformation(struct trainif *p)
 {
+	int x=0;
+	int number=0;
+	char buf[32];
+	struct trainif *q = NULL;
+	q = p;
+	printf("choose the wy:\n");
+	printf("1:according the number of train\n");
+	printf("2:according to the city");
+
+	do
+	{
+		scanf("%d", &x);
+		while (getchar() != '\n')
+			;
+	} while (x != 1 && x != 2);
+
+	if (x == 1)
+	{
+		printf("Input number of the train:\n");
+		scanf("%d", &number);
+		while(getchar() != '\n');
+
+		while (q != NULL && number != q->trainnum )
+		{
+			q = q->next;
+		}
+
+		ShowSingleIf(q);
+	}
+	else if (x == 2)
+	{
+		printf("Input the city of the train\n");
+		scanf("%s", buf);
+		while (p != NULL && strcasecmp(buf, p->end))
+		{
+			p = p->next;
+		}
+
+		ShowSingleIf(p);
+	}
+
 	return 0;
 }
 
@@ -191,6 +233,22 @@ int ShowInformation()
 int SaveInformation()
 {
 	return 0;
+}
+
+void ShowSingleIf(struct trainif *p)
+{
+	if (NULL == p)
+	{
+		printf("Not found the train infformation!\n");
+	}
+	else
+	{
+		printf("-------------------------------------------------------------------------------------------------------------------:\n");
+		printf(":--------------------------------------------BOOK----TICKET--------------------------------------------------------:\n");
+		printf(":    number    :  strat city  :  reach city   :   tackofftime    :   receivetime    :  price  :   ticketnumber     :\n");
+		printf(":--------------:--------------:---------------:------------------:------------------:---------:--------------------:\n");
+		printf(":%-14d:%-14s:%-15s:%-18s:%-20s:%-9d:%-22d\n", p->trainnum, p->start, p->end, p->starttime, p->receivetime, p->price, p->booknumber);
+	}
 }
 
 int main(int argc, const char *argv[])
