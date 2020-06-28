@@ -5,6 +5,7 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 
+
 struct trainif
 {
 	int trainnum;
